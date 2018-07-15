@@ -17,6 +17,9 @@
   },
   "homepage": "https://gitlab.com/calendar-app/api#README",
   "dependencies": {
-    "express": "^4.16.3"
+    "express": "^4.16.3",
+    "moment": "^2.22.2",
+    "morgan": "^1.9.0",
+    "mysql": "^2.15.0"
   }
 }
