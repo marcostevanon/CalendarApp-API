@@ -64,8 +64,8 @@ app.get('/times/:course', (req, res) => {
         FROM Times
             JOIN Course ON Times.id_course = Course.id
             JOIN Professor ON Times.id_professor = Professor.id
-            JOIN Room ON Times.id_room = Room.id
-            JOIN Building ON Room.id_building = Building.id
+            LEFT JOIN Room ON Times.id_room = Room.id
+            LEFT JOIN Building ON Room.id_building = Building.id
         WHERE Course.csvCode = ? AND Times.date >= ?`;
     var args = [];
     
