@@ -11,7 +11,7 @@ app.use(cors())
 app.use(morgan('combined'));
 
 app.get('/course/list', (req, res) => {
-    var query = `SELECT name, csvCode, year FROM Course WHERE active = 1 ORDER BY year`;
+    var query = `SELECT name, csvCode, year, active FROM Course ORDER BY year`;
 
     db.query(query, [], (err, rows) => {
         if (err) res.sendStatus(500);
@@ -20,7 +20,7 @@ app.get('/course/list', (req, res) => {
 });
 
 app.get('/course/:course', (req, res) => {
-    var query = `SELECT * FROM Course WHERE csvCode = ? AND active = 1`;
+    var query = `SELECT * FROM Course WHERE csvCode = ?`;
     var args = [];
 
     if (req.params.course) {
@@ -42,7 +42,8 @@ app.get('/lastupdt/:course', (req, res) => {
 
         db.query(query, args, (err, rows) => {
             if (err) { res.sendStatus(500); }
-            res.json(rows[0].date);
+            if (rows.length) res.json(rows[0].date);
+            else res.sendStatus(400); 
         });
     } else { res.sendStatus(400); }
 });
@@ -68,7 +69,7 @@ app.get('/times/:course', (req, res) => {
             LEFT JOIN Building ON Room.id_building = Building.id
         WHERE Course.csvCode = ? AND Times.date >= ?`;
     var args = [];
-    
+
     if (req.params.course) {
         args.push(req.params.course);
 
