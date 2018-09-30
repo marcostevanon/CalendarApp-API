@@ -67,7 +67,8 @@ app.get('/times/:course', (req, res) => {
             JOIN Professor ON Times.id_professor = Professor.id
             LEFT JOIN Room ON Times.id_room = Room.id
             LEFT JOIN Building ON Room.id_building = Building.id
-        WHERE Course.csvCode = ? AND Times.date >= ?`;
+        WHERE Course.csvCode = ? AND Times.date >= ?
+        ORDER BY Times.date, Times.timestart`;
     var args = [];
 
     if (req.params.course) {
@@ -87,8 +88,9 @@ app.all('*', (req, res) => {
     res.sendStatus(404);
 });
 
-var server = app.listen(1883, () => {
-    console.log('listen on port ' + server._connectionKey.split(':')[4]);
+var port = 1883;
+var server = app.listen(port, () => {
+    console.log('listen on port ' + port);
 });
 
 /*process.on('SIGINT', function () {
