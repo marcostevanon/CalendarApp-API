@@ -34,7 +34,7 @@ app.get('/course/:course', (req, res) => {
 });
 
 app.get('/lastupdt/:course', (req, res) => {
-    var query = `SELECT date FROM log WHERE courseCode = ? ORDER BY date DESC LIMIT 1`;
+    var query = `SELECT date FROM log WHERE courseCode = ? AND times > 0 ORDER BY date DESC LIMIT 1`;
     var args = [];
 
     if (req.params.course) {
