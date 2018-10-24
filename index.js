@@ -7,6 +7,12 @@ const moment = require('moment');
 moment.locale('it');
 var db = mysql.createPool(require(__dirname + '/config.js').mysql);
 
+var fs = require('fs');
+var https = require('https');
+var privateKey = fs.readFileSync('sslcert/server.key');
+var certificate = fs.readFileSync('sslcert/server.crt');
+var credentials = { key: privateKey, cert: certificate }
+
 app.use(cors())
 app.use(morgan('combined'));
 
@@ -43,7 +49,7 @@ app.get('/lastupdt/:course', (req, res) => {
         db.query(query, args, (err, rows) => {
             if (err) { res.sendStatus(500); }
             if (rows.length) res.json(rows[0].date);
-            else res.sendStatus(400); 
+            else res.sendStatus(400);
         });
     } else { res.sendStatus(400); }
 });
@@ -89,9 +95,14 @@ app.all('*', (req, res) => {
 });
 
 var port = 1883;
-var server = app.listen(port, () => {
+/*var server = app.listen(port, () => {
     console.log('listen on port ' + port);
-});
+});*/
+
+var httpsServer = https.createServer(credentials, app);
+httpsServer.listen(port);
+
+console.log('listen on port ' + port);
 
 /*process.on('SIGINT', function () {
     server.close();
