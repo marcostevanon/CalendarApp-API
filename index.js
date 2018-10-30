@@ -90,6 +90,26 @@ app.get('/times/:course', (req, res) => {
     } else { res.sendStatus(400); }
 });
 
+app.get('/log', (req, res) => {
+    var query = `SELECT * FROM log ORDER BY date DESC LIMIT ?`;
+
+    var args = [];
+    try {
+        if (req.query.limit) args.push(parseInt(req.query.limit));
+        else args.push(30);
+    } catch (error) {
+        res.sendStatus(500);
+        return;
+    }
+
+    db.query(query, args, (err, rows) => {
+        console.log(err);
+        if (err) res.sendStatus(500);
+        else res.json(rows);
+
+    });
+})
+
 app.all('*', (req, res) => {
     res.sendStatus(404);
 });
@@ -101,10 +121,4 @@ var port = 1883;
 
 var httpsServer = https.createServer(credentials, app);
 httpsServer.listen(port);
-
 console.log('listen on port ' + port);
-
-/*process.on('SIGINT', function () {
-    server.close();
-    console.log("\nserver closed");
-});*/
