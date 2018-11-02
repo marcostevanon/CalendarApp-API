@@ -136,7 +136,7 @@ app.get('/stats/:course', (req, res) => {
                 JOIN Professor on Times.id_professor = Professor.id
                 JOIN Room on Times.id_room = Room.id
                 JOIN Building on Room.id_building = Building.id
-            WHERE Course.name = ?
+            WHERE Course.csvCode = ?
             GROUP BY module
             ORDER BY module;`;
     var args = [];
