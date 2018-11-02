@@ -17,7 +17,10 @@ app.use(cors())
 app.use(morgan('combined'));
 
 app.get('/course/list', (req, res) => {
-    var query = `SELECT name, csvCode, year, active FROM Course ORDER BY year`;
+    var query = `
+            SELECT name, csvCode, year, active
+            FROM Course
+            ORDER BY year`;
 
     db.query(query, [], (err, rows) => {
         if (err) res.sendStatus(500);
@@ -26,7 +29,9 @@ app.get('/course/list', (req, res) => {
 });
 
 app.get('/course/:course', (req, res) => {
-    var query = `SELECT * FROM Course WHERE csvCode = ?`;
+    var query = `
+            SELECT * 
+            FROM Course WHERE csvCode = ?`;
     var args = [];
 
     if (req.params.course) {
@@ -40,7 +45,13 @@ app.get('/course/:course', (req, res) => {
 });
 
 app.get('/lastupdt/:course', (req, res) => {
-    var query = `SELECT date FROM log WHERE courseCode = ? AND times > 0 ORDER BY date DESC LIMIT 1`;
+    var query = `
+            SELECT date
+            FROM log
+            WHERE courseCode = ?
+            AND times > 0
+            ORDER BY date DESC
+            LIMIT 1`;
     var args = [];
 
     if (req.params.course) {
@@ -55,26 +66,27 @@ app.get('/lastupdt/:course', (req, res) => {
 });
 
 app.get('/times/:course', (req, res) => {
-    var query = `SELECT
-            Times.id         as id,
-            Times.webID      as webID,
-            Course.name      as courseName,
-            Times.moduleName as moduleName,
-            Times.required   as required,
-            Professor.name   as prof,
-            Room.name        as room,
-            Building.name    as building,
-            Times.date       as date,
-            Times.timestart  as timestart,
-            Times.timeend    as timeend,
-            Times.note       as note
-        FROM Times
-            JOIN Course ON Times.id_course = Course.id
-            JOIN Professor ON Times.id_professor = Professor.id
-            LEFT JOIN Room ON Times.id_room = Room.id
-            LEFT JOIN Building ON Room.id_building = Building.id
-        WHERE Course.csvCode = ? AND Times.date >= ?
-        ORDER BY Times.date, Times.timestart`;
+    var query = `
+            SELECT Times.id         AS id,
+                Times.webID      AS webID,
+                Course.name      AS courseName,
+                Times.moduleName AS moduleName,
+                Times.required   AS required,
+                Professor.name   AS prof,
+                Room.name        AS room,
+                Building.name    AS building,
+                Times.date       AS date,
+                Times.timestart  AS timestart,
+                Times.timeend    AS timeend,
+                Times.note       AS note
+            FROM Times
+                JOIN Course ON Times.id_course = Course.id
+                JOIN Professor ON Times.id_professor = Professor.id
+                LEFT JOIN Room ON Times.id_room = Room.id
+                LEFT JOIN Building ON Room.id_building = Building.id
+            WHERE Course.csvCode = ?
+            AND Times.date >= ?
+            ORDER BY Times.date, Times.timestart`;
     var args = [];
 
     if (req.params.course) {
@@ -91,12 +103,16 @@ app.get('/times/:course', (req, res) => {
 });
 
 app.get('/log', (req, res) => {
-    var query = `SELECT * FROM log ORDER BY date DESC LIMIT ?`;
+    var query = `
+            SELECT *
+            FROM log
+            ORDER BY date DESC
+            LIMIT ?`;
 
     var args = [];
     try {
         if (req.query.limit) args.push(parseInt(req.query.limit));
-        else args.push(30);
+        else args.push(200);
     } catch (error) {
         res.sendStatus(500);
         return;
@@ -109,6 +125,32 @@ app.get('/log', (req, res) => {
 
     });
 })
+
+app.get('/stats/:course', (req, res) => {
+    var query = `
+            SELECT Times.moduleName                                                AS module,
+                GROUP_CONCAT(DISTINCT Professor.name ORDER BY Professor.name, ',') AS prof,
+                FLOOR(SUM((Times.timeend - Times.timestart) / 10000))              AS duration
+            FROM Course
+                JOIN Times on Course.id = Times.id_course
+                JOIN Professor on Times.id_professor = Professor.id
+                JOIN Room on Times.id_room = Room.id
+                JOIN Building on Room.id_building = Building.id
+            WHERE Course.name = ?
+            GROUP BY module
+            ORDER BY module;`;
+    var args = [];
+
+    if (req.params.course) {
+        args.push(req.params.course);
+
+        db.query(query, args, (err, rows) => {
+            if (err) { res.sendStatus(500); }
+            res.json(rows);
+        });
+    } else { res.sendStatus(400); }
+});
+
 
 app.all('*', (req, res) => {
     res.sendStatus(404);
