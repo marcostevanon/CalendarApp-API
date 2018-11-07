@@ -106,6 +106,36 @@ app.get('/log', (req, res) => {
     var query = `
             SELECT *
             FROM log
+            WHERE action = 'check'
+            OR action = 'update'
+            OR action = 'new'
+            OR action = 'delete'
+            ORDER BY date DESC
+            LIMIT ?`;
+
+    var args = [];
+    try {
+        if (req.query.limit) args.push(parseInt(req.query.limit));
+        else args.push(200);
+    } catch (error) {
+        res.sendStatus(500);
+        return;
+    }
+
+    db.query(query, args, (err, rows) => {
+        console.log(err);
+        if (err) res.sendStatus(500);
+        else res.json(rows);
+
+    });
+})
+
+app.get('/mail', (req, res) => {
+    var query = `
+            SELECT *
+            FROM log
+            WHERE action = 'mailSEND'
+            OR action = 'mailERROR'
             ORDER BY date DESC
             LIMIT ?`;
 
