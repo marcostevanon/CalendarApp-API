@@ -1,0 +1,20 @@
+# DEVELOPMENT
+version: "3"
+
+services:
+  dev.api.calendar.marcostevanon.ovh:
+    container_name: dev.api.calendar.marcostevanon.ovh
+    image: node:10-alpine
+    build: .
+    restart: always
+    labels:
+      - "traefik.frontend.rule=Host:dev.api.calendar.marcostevanon.ovh"
+      - "traefik.port=1883"
+      - "traefik.enable=true"
+    command: npm run prod
+    networks:
+      - traefik
+
+networks:
+  traefik:
+    external: true
