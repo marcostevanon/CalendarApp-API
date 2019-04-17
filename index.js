@@ -1,4 +1,8 @@
 "use strict";
+
+// Import environments
+require('dotenv').config();
+
 const app = require('express')();
 const morgan = require('morgan');
 const cors = require('cors');
@@ -7,14 +11,8 @@ const moment = require('moment');
 moment.locale('it');
 var db = mysql.createPool(require(__dirname + '/config.js').mysql);
 
-var fs = require('fs');
-var https = require('https');
-var privateKey = fs.readFileSync('sslcert/server.key');
-var certificate = fs.readFileSync('sslcert/server.crt');
-var credentials = { key: privateKey, cert: certificate }
-
 app.use(cors())
-app.use(morgan('combined'));
+app.use(morgan(':date[iso] [:response-time[digits]ms] :remote-addr :method :url :status \t :referrer'));
 
 app.get('/course/list', (req, res) => {
     var query = `
@@ -181,16 +179,8 @@ app.get('/stats/:course', (req, res) => {
     } else { res.sendStatus(400); }
 });
 
-
-app.all('*', (req, res) => {
-    res.sendStatus(404);
-});
+app.all("/healthcheck", (req, res) => res.sendStatus(200));
+app.all('*', (req, res) => res.sendStatus(404));
 
 var port = 1883;
-/*var server = app.listen(port, () => {
-    console.log('listen on port ' + port);
-});*/
-
-var httpsServer = https.createServer(credentials, app);
-httpsServer.listen(port);
-console.log('listen on port ' + port);
+app.listen(port, () => console.log('listen on port ' + port));

@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "prod": "NODE_ENV=prod node index.js",
+    "stage": "NODE_ENV=stage node index.js"
   },
   "repository": {
     "type": "git",
