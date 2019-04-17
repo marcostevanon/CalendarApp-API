@@ -3,12 +3,12 @@ version: "3"
 
 services:
   calendar.marcostevanon.ovh:
-    container_name: calendar.marcostevanon.ovh
+    container_name: api.calendar.marcostevanon.ovh
     image: node:10-alpine
     build: .
     restart: always
     labels:
-      - "traefik.frontend.rule=Host:calendar.marcostevanon.ovh"
+      - "traefik.frontend.rule=Host:api.calendar.marcostevanon.ovh"
       - "traefik.port=1883"
       - "traefik.enable=true"
     command: npm run prod
