@@ -47,6 +47,7 @@ deploy-prod:
 
 build-dev:
   stage: build
+  image: gitlab/dind
   services:
   - docker:dind
   script:
