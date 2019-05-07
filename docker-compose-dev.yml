@@ -12,7 +12,7 @@ services:
       - "traefik.enable=true"
     env_file:
       - .env
-    command: npm run dev
+    command: npm run prod
     networks:
       - traefik
 
