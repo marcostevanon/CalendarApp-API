@@ -47,7 +47,6 @@ deploy-prod:
 
 build-dev:
   stage: build
-  image: docker
   services:
   - docker:dind
   script:
