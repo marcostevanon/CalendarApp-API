@@ -46,10 +46,10 @@ deploy-prod:
   stage: deploy
   script:
     - ssh $USER_NAME@$HOST_NAME -p $PORT "mkdir -p $DEPLOY_PATH"
-    - scp -P $PORT -rp docker-compose.yml .env $USER_NAME@$HOST_NAME:$DEPLOY_PATH
+    - scp -P $PORT -rp docker-compose-prod.yml .env $USER_NAME@$HOST_NAME:$DEPLOY_PATH
     - |
       ssh $USER_NAME@$HOST_NAME -p $PORT "cd $DEPLOY_PATH && 
-        docker-compose -f docker-compose.yml up --build --force-recreate -d"
+        docker-compose -f docker-compose-prod.yml up --build --force-recreate -d"
   environment:
     name: production
     url: https://api.calendar.marcostevanon.ovh/healthcheck
