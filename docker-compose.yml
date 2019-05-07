@@ -4,13 +4,14 @@ version: "3"
 services:
   calendar.marcostevanon.ovh:
     container_name: api.calendar.marcostevanon.ovh
-    image: node:10-alpine
-    build: .
+    image: registry.gitlab.com/calendar-app/api:latest
     restart: always
     labels:
       - "traefik.frontend.rule=Host:api.calendar.marcostevanon.ovh"
       - "traefik.port=1883"
       - "traefik.enable=true"
+    env_file:
+      - .env
     command: npm run prod
     networks:
       - traefik
