@@ -4,7 +4,7 @@ version: "3"
 services:
   calendar.marcostevanon.ovh:
     container_name: api.calendar.marcostevanon.ovh
-    image: registry.gitlab.com/calendar-app/api:latest
+    image: registry.gitlab.com/calendar-app/api:master
     restart: always
     labels:
       - "traefik.frontend.rule=Host:api.calendar.marcostevanon.ovh"
