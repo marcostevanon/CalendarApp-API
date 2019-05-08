@@ -4,33 +4,33 @@ stages:
   - down
 
 variables:
-  DEPLOY_PATH: "/home/marco/gitlab-ws/calendar-autodeploy/"
+  DEPLOY_PATH: "/home/marco/gitlab-ws/calendar-autodeploy/backend"
   IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
 
 before_script:
-    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client git -y )'
-    - eval $(ssh-agent -s)
-    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - ssh-keyscan -p $PORT $HOST_NAME >> ~/.ssh/known_hosts
-    - chmod 644 ~/.ssh/known_hosts
-    - |
-      ENVIRONMENTS=$(cat << EOF
-        MYSQL_CONN_LIMIT=$MYSQL_CONN_LIMIT
-        MYSQL_HOST=$MYSQL_HOST
-        MYSQL_USER=$MYSQL_USER
-        MYSQL_PASS=$MYSQL_PASS
-        MYSQL_DB=$MYSQL_DB
-      EOF
-      )
-    - echo "$ENVIRONMENTS" > .env
+  - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client git -y )'
+  - eval $(ssh-agent -s)
+  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
+  - ssh-keyscan -p $PORT $HOST_NAME >> ~/.ssh/known_hosts
+  - chmod 644 ~/.ssh/known_hosts
+  - |
+    ENVIRONMENTS=$(cat << EOF
+      MYSQL_CONN_LIMIT=$MYSQL_CONN_LIMIT
+      MYSQL_HOST=$MYSQL_HOST
+      MYSQL_USER=$MYSQL_USER
+      MYSQL_PASS=$MYSQL_PASS
+      MYSQL_DB=$MYSQL_DB
+    EOF
+    )
+  - echo "$ENVIRONMENTS" > .env
 
 build:
   stage: build
   image: docker
   services:
-  - docker:dind
+    - docker:dind
   before_script:
     - ''
   script:
@@ -49,6 +49,7 @@ deploy-prod:
     - scp -P $PORT -rp docker-compose-prod.yml .env $USER_NAME@$HOST_NAME:$DEPLOY_PATH
     - |
       ssh $USER_NAME@$HOST_NAME -p $PORT "cd $DEPLOY_PATH && 
+        docker-compose -f docker-compose-prod.yml pull &&
         docker-compose -f docker-compose-prod.yml up --build --force-recreate -d"
   environment:
     name: production
@@ -65,6 +66,7 @@ deploy-dev:
     - scp -P $PORT -rp docker-compose-dev.yml .env $USER_NAME@$HOST_NAME:$DEPLOY_PATH
     - |
       ssh $USER_NAME@$HOST_NAME -p $PORT "cd $DEPLOY_PATH &&
+        docker-compose -f docker-compose-dev.yml pull &&
         docker-compose -f docker-compose-dev.yml up --build --force-recreate -d"
   environment:
     name: development
@@ -77,7 +79,7 @@ deploy-dev:
 down-dev:
   stage: down
   script:
-   - |
+    - |
       ssh $USER_NAME@$HOST_NAME -p $PORT "cd $DEPLOY_PATH &&
         docker-compose -f docker-compose-dev.yml down"
   environment:
