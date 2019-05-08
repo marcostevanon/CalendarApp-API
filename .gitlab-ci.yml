@@ -49,6 +49,7 @@ deploy-prod:
     - scp -P $PORT -rp docker-compose-prod.yml .env $USER_NAME@$HOST_NAME:$DEPLOY_PATH
     - |
       ssh $USER_NAME@$HOST_NAME -p $PORT "cd $DEPLOY_PATH && 
+        docker-compose -f docker-compose-prod.yml pull &&
         docker-compose -f docker-compose-prod.yml up --build --force-recreate -d"
   environment:
     name: production
@@ -65,6 +66,7 @@ deploy-dev:
     - scp -P $PORT -rp docker-compose-dev.yml .env $USER_NAME@$HOST_NAME:$DEPLOY_PATH
     - |
       ssh $USER_NAME@$HOST_NAME -p $PORT "cd $DEPLOY_PATH &&
+        docker-compose -f docker-compose-dev.yml pull &&
         docker-compose -f docker-compose-dev.yml up --build --force-recreate -d"
   environment:
     name: development
